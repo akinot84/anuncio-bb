@@ -581,3 +581,24 @@ a:hover {
     .video-recuadro { width: 92%; }
     .container { padding: 16px; max-width: 96vw; }
 }
+
+/* QR pulse animation when the invitation is revealed */
+.invite-qr-wrap.show img {
+    animation: qrPulse 1400ms ease-in-out both;
+    transform-origin: center center;
+}
+@keyframes qrPulse {
+    0% { transform: scale(0.98); box-shadow: 0 0 18px rgba(0,0,0,0.04); }
+    40% { transform: scale(1.06); box-shadow: 0 0 36px rgba(255,0,234,0.15), 0 0 72px rgba(15,255,193,0.08) inset; }
+    70% { transform: scale(1.02); box-shadow: 0 0 24px rgba(255,0,234,0.12); }
+    100% { transform: scale(1); box-shadow: 0 0 18px rgba(0,0,0,0.04); }
+}
+
+/* Smooth entrance for the invitation box */
+.neon-box.invitation.revealed {
+    animation: inviteIn 380ms cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes inviteIn {
+    0% { transform: translateY(8px) scale(0.98); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
