@@ -133,32 +133,53 @@
         }
 
         // show modal unless seen in session
+        function revealInvitation(){
+            // show the invitation area and QR
+            const inviteBox = document.querySelector('.neon-box.invitation');
+            const inviteWrap = document.querySelector('.invite-qr-wrap');
+            if(inviteBox) inviteBox.classList.add('revealed');
+            if(inviteWrap) inviteWrap.classList.add('show');
+        }
+
         if(!sessionStorage.getItem('giftSeen')){
+            // lock the page so only modal is visible
+            document.body.classList.add('locked');
             modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-            setTimeout(()=> setQR(), 200);
+            // prepare links but do not reveal QR until user opens the gift
             setWhatsapp();
             setInviteLink();
         } else {
-            // still ensure invitation elements are populated when modal isn't shown
+            // already opened this session — ensure invitation elements are populated and visible
             setQR(); setWhatsapp(); setInviteLink();
+            revealInvitation();
+            document.body.classList.remove('locked');
         }
 
         openBtn.addEventListener('click', function(){
-            modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
-            sessionStorage.setItem('giftSeen','1');
-            // play short sfx (user initiated)
+            // play a short "boom" animation then reveal
+            modal.classList.add('explode');
+            // immediate small pop sound
             if(sfx && typeof sfx.play === 'function'){
                 sfx.currentTime = 0;
                 sfx.play().catch(()=>{});
             }
-            // small confetti effect: add class to body
-            document.body.classList.add('confetti');
-            setTimeout(()=>document.body.classList.remove('confetti'), 3000);
+            // add a tiny delay to let the animation run, then reveal
+            setTimeout(()=>{
+                // confetti and reveal
+                document.body.classList.add('confetti');
+                setTimeout(()=>document.body.classList.remove('confetti'), 2600);
+                // finalize: hide modal, reveal QR and content
+                modal.classList.remove('open','explode'); modal.setAttribute('aria-hidden','true');
+                sessionStorage.setItem('giftSeen','1');
+                try{ setQR(); }catch(e){}
+                revealInvitation();
+                document.body.classList.remove('locked');
+            }, 480);
         });
 
-        // allow clicking outside or ESC to close
-        modal.addEventListener('click', function(e){ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); }});
-        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); }});
+        // allow clicking outside or ESC to close — treat as opening the gift (reveal content)
+        modal.addEventListener('click', function(e){ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); try{ setQR(); }catch(e){}; revealInvitation(); document.body.classList.remove('locked'); }});
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); try{ setQR(); }catch(e){}; revealInvitation(); document.body.classList.remove('locked'); }});
     })();
 
     // make invite QR clickable as a fallback (opens invite link in new tab)
