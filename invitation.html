@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Invitación - Fam Akime</title>
+  <link rel="stylesheet" href="invitation.css">
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>¡Tenemos una noticia especial!</h1>
+      <p class="sub">Fam Akime está esperando un nuevo miembro</p>
+    </header>
+
+    <section class="main">
+      <div class="left">
+        <p class="message">Con mucho cariño queremos invitarte a descubrir nuestra sorpresa. Escanea el QR o pulsa el botón para abrir la invitación online.</p>
+        <a class="btn" href="https://akinot84.github.io/anuncio-bb/" target="_blank" rel="noopener">Abrir invitación</a>
+      </div>
+      <div class="qr">
+        <!-- QR generado por el servicio público; tamaño 360x360 para impresión -->
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=https%3A%2F%2Fakinot84.github.io%2Fanuncio-bb%2F" alt="QR invitación">
+        <p class="hint">Escanea con tu teléfono</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Con amor, <strong>Fam Akime</strong></p>
+      <button onclick="window.print()" class="print">Imprimir tarjeta</button>
+    </footer>
+  </div>
+</body>
+</html>
