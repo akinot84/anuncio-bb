@@ -133,17 +133,24 @@
                 const blob = await generateInviteImage({url: inviteUrl});
                 try{
                     const filesArray = [new File([blob], 'invitacion_fam_akime.png', {type: 'image/png'})];
-                    if(navigator.canShare && navigator.canShare({files: filesArray})){
-                        await navigator.share({files: filesArray, text: 'Invitación Fam Akime'});
-                        return;
-                    }
+                        if(navigator.canShare && navigator.canShare({files: filesArray})){
+                            const shareText = '🎁 Fam Akime les tiene un regalo: ' + inviteUrl;
+                            await navigator.share({files: filesArray, text: shareText});
+                            return;
+                        }
                 }catch(e){ console.warn('Web Share failed', e); }
-                // fallback: download
+                // fallback: download + open WhatsApp share with text containing link
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
                 a.download = 'invitacion_fam_akime.png';
                 document.body.appendChild(a); a.click(); a.remove();
                 setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+                try{
+                    const waText = encodeURIComponent('🎁 Fam Akime les tiene un regalo: ' + inviteUrl);
+                    const waUrl = 'https://wa.me/?text=' + waText;
+                    // open WhatsApp web/share in new tab so user can paste image + link
+                    window.open(waUrl, '_blank', 'noopener');
+                }catch(e){/* ignore */}
             });
         }
     });
