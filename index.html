@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Nueva Adición a la Familia!</title>
+    <!-- Open Graph / Social preview -->
+    <meta property="og:title" content="¡Una sorpresa de Navidad de Fam Akime!" />
+    <meta property="og:description" content="Abre tu regalo y descubre la noticia especial que tenemos para ti." />
+    <meta property="og:image" content="preview-gift.jpg" />
+    <meta property="og:image:alt" content="Regalo de Navidad — ¡Haz clic para abrir!" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Google Fonts para letras infladas y amigables -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Fredoka+One&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Modal regalo (se muestra al entrar) -->
+    <div id="gift-modal" class="gift-modal" aria-hidden="true">
+        <div class="gift-modal-inner">
+            <div class="gift-box" id="giftBox">
+                <div class="ribbon"></div>
+                <div class="lid"></div>
+                <div class="box-face">🎁</div>
+            </div>
+            <h2>¡Un regalo de Fam Akime!</h2>
+            <p>Haz clic en "Abrir regalo" para ver la sorpresa.</p>
+            <div class="gift-actions">
+                <button id="openGiftBtn" class="neon-btn">Abrir regalo</button>
+                <a id="whatsappShare" class="neon-btn" href="#">Compartir por WhatsApp</a>
+            </div>
+            <!-- QR movido fuera del modal; se mostrará en la sección de invitación -->
+        </div>
+    </div>
+    <!-- Video de fondo -->
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="eco-video.mp4" type="video/mp4">
+        Tu navegador no soporta la etiqueta de video.
+    </video>
+    <div class="bubbles">
+        <!-- Burbujas neón (decorativas, pointer-events none) -->
+        <div class="bubble" style="left:8vw; width:90px; height:90px; animation-delay: 0s;"></div>
+        <div class="bubble" style="left:24vw; width:64px; height:64px; animation-delay: 2s;"></div>
+        <div class="bubble" style="left:40vw; width:120px; height:120px; animation-delay: 4s;"></div>
+        <div class="bubble" style="left:62vw; width:72px; height:72px; animation-delay: 1s;"></div>
+        <div class="bubble" style="left:78vw; width:48px; height:48px; animation-delay: 3s;"></div>
+        <div class="bubble" style="left:18vw; width:110px; height:110px; animation-delay: 5s;"></div>
+        <div class="bubble" style="left:56vw; width:56px; height:56px; animation-delay: 6s;"></div>
+    </div>
+    <!-- Lightbox overlay -->
+    <div id="lightbox" class="lightbox-overlay" aria-hidden="true">
+        <button class="lightbox-close" aria-label="Cerrar">✕</button>
+        <button class="lightbox-prev" aria-label="Anterior">◀</button>
+        <img class="lightbox-img" src="" alt="">
+        <button class="lightbox-next" aria-label="Siguiente">▶</button>
+    </div>
+
+    <script>
+    // Lightbox básico: recopila miniaturas por clase .thumb-link
+    (function(){
+        const links = Array.from(document.querySelectorAll('.thumb-link'));
+        if(!links.length) return;
+        const overlay = document.getElementById('lightbox');
+        const img = overlay.querySelector('.lightbox-img');
+        const closeBtn = overlay.querySelector('.lightbox-close');
+        const prevBtn = overlay.querySelector('.lightbox-prev');
+        const nextBtn = overlay.querySelector('.lightbox-next');
+        let current = 0;
+
+        function openAt(index){
+            const url = links[index].getAttribute('href');
+            img.src = url;
+            img.alt = links[index].querySelector('img')?.alt || '';
+            overlay.classList.add('open');
+            overlay.setAttribute('aria-hidden','false');
+            current = index;
+        }
+        function close(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); img.src=''; }
+        function next(){ openAt((current+1)%links.length); }
+        function prev(){ openAt((current-1+links.length)%links.length); }
+
+        links.forEach((a,i)=>{
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                openAt(i);
+            });
+        });
+
+        closeBtn.addEventListener('click', close);
+        overlay.addEventListener('click', function(e){ if(e.target===overlay) close(); });
+        nextBtn.addEventListener('click', function(e){ e.stopPropagation(); next(); });
+        prevBtn.addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+        document.addEventListener('keydown', function(e){ if(overlay.classList.contains('open')){
+            if(e.key==='Escape') close();
+            if(e.key==='ArrowRight') next();
+            if(e.key==='ArrowLeft') prev();
+        }});
+    })();
+
+    // Modal regalo: muestra un regalo al entrar y genera QR/compartir
+    (function(){
+        const modal = document.getElementById('gift-modal');
+        const openBtn = document.getElementById('openGiftBtn');
+        const sfx = document.getElementById('open-sfx');
+
+        // Invitation elements (moved QR out of modal)
+        const inviteQr = document.getElementById('invite-qr');
+        const inviteLink = document.getElementById('invite-link');
+        const inviteWhatsapp = document.getElementById('invite-whatsapp');
+        const modalWhatsapp = document.getElementById('whatsappShare');
+
+        function setQR(){
+            try{
+                const url = location.href;
+                const api = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(url);
+                if(inviteQr) inviteQr.src = api;
+            }catch(e){ console.warn(e); }
+        }
+
+        function setWhatsapp(){
+            const url = location.href;
+            const text = encodeURIComponent('🎁 Fam Akime les tiene un regalo de Navidad. Ábrelo aquí: ' + url);
+            const wa = 'https://wa.me/?text=' + text;
+            if(inviteWhatsapp) inviteWhatsapp.href = wa;
+            if(modalWhatsapp) modalWhatsapp.href = wa;
+        }
+
+        function setInviteLink(){
+            const url = location.href;
+            if(inviteLink) { inviteLink.href = url; inviteLink.textContent = 'Abrir invitación'; }
+        }
+
+        // show modal unless seen in session
+        if(!sessionStorage.getItem('giftSeen')){
+            modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+            setTimeout(()=> setQR(), 200);
+            setWhatsapp();
+            setInviteLink();
+        } else {
+            // still ensure invitation elements are populated when modal isn't shown
+            setQR(); setWhatsapp(); setInviteLink();
+        }
+
+        openBtn.addEventListener('click', function(){
+            modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+            sessionStorage.setItem('giftSeen','1');
+            // play short sfx (user initiated)
+            if(sfx && typeof sfx.play === 'function'){
+                sfx.currentTime = 0;
+                sfx.play().catch(()=>{});
+            }
+            // small confetti effect: add class to body
+            document.body.classList.add('confetti');
+            setTimeout(()=>document.body.classList.remove('confetti'), 3000);
+        });
+
+        // allow clicking outside or ESC to close
+        modal.addEventListener('click', function(e){ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); }});
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); }});
+    })();
+
+    // make invite QR clickable as a fallback (opens invite link in new tab)
+    (function(){
+        const inviteQr = document.getElementById('invite-qr');
+        const inviteLink = document.getElementById('invite-link');
+        if(inviteQr){
+            inviteQr.style.cursor = 'pointer';
+            inviteQr.addEventListener('click', function(){
+                const url = (inviteLink && inviteLink.href && inviteLink.href !== '#') ? inviteLink.href : location.href;
+                try{ window.open(url, '_blank', 'noopener'); }catch(e){ location.href = url; }
+            });
+        }
+    })();
+
+    
+    </script>
+    <div class="container">
+        <!-- Sección de invitación separada (QR + compartir) -->
+        <div class="neon-box invitation">
+            <h3>Invitación / Regalo</h3>
+            <p>Comparte este enlace o escanea el QR con tu teléfono:</p>
+            <div class="invite-qr-wrap">
+                <img id="invite-qr" src="" alt="QR del enlace" />
+            </div>
+            <div style="margin-top:8px">
+                <a id="invite-link" href="#" class="neon-btn" target="_blank" rel="noopener">Abrir invitación</a>
+                <a id="invite-whatsapp" href="#" class="neon-btn" target="_blank" rel="noopener">Compartir por WhatsApp</a>
+            </div>
+        </div>
+                <!-- Video visible en recuadro -->
+                <div class="neon-box video-visible">
+                    <video controls class="video-recuadro">
+                        <source src="bb2.mp4" type="video/mp4">
+                        Tu navegador no soporta la etiqueta de video.
+                    </video>
+                </div>
+                <!-- Efecto corto al abrir el regalo: usa open-sfx.mp3 en la carpeta o fallback público -->
+                <audio id="open-sfx" preload="auto">
+                    <source src="open-sfx.mp3" type="audio/mpeg">
+                    <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+                    Tu navegador no soporta audio.
+                </audio>
+        <h1>¡Tenemos una Sorpresa Especial!</h1>
+        <p>Queridos familiares,</p>
+        <p>Con mucho amor y alegría, queremos compartir con ustedes una noticia emocionante. ¡Vamos a tener otro bebé!</p>
+
+        <!-- Fila superior de imágenes (eco1..eco5) -->
+        <div class="neon-box gallery-row">
+            <a href="eco1.jpg" data-index="0" class="thumb-link"><img src="eco1.jpg" alt="Eco 1" class="imagen-grid"></a>
+            <a href="eco2.jpg" data-index="1" class="thumb-link"><img src="eco2.jpg" alt="Eco 2" class="imagen-grid"></a>
+            <a href="eco3.jpg" data-index="2" class="thumb-link"><img src="eco3.jpg" alt="Eco 3" class="imagen-grid"></a>
+            <a href="eco4.jpg" data-index="3" class="thumb-link"><img src="eco4.jpg" alt="Eco 4" class="imagen-grid"></a>
+            <a href="eco5.jpg" data-index="4" class="thumb-link"><img src="eco5.jpg" alt="Eco 5" class="imagen-grid"></a>
+        </div>
+        <p>Queridos familiares,</p>
+        <p>Con mucho amor y alegría, queremos compartir con ustedes una noticia emocionante. ¡Vamos a tener otro bebé!</p>
+
+        <!-- Fila central de imágenes (eco6..eco10) -->
+        <div class="neon-box gallery-row">
+            <a href="eco6.jpg" data-index="5" class="thumb-link"><img src="eco6.jpg" alt="Eco 6" class="imagen-grid"></a>
+            <a href="eco7.jpg" data-index="6" class="thumb-link"><img src="eco7.jpg" alt="Eco 7" class="imagen-grid"></a>
+            <a href="eco8.jpg" data-index="7" class="thumb-link"><img src="eco8.jpg" alt="Eco 8" class="imagen-grid"></a>
+            <a href="eco9.jpg" data-index="8" class="thumb-link"><img src="eco9.jpg" alt="Eco 9" class="imagen-grid"></a>
+            <a href="eco10.jpg" data-index="9" class="thumb-link"><img src="eco10.jpg" alt="Eco 10" class="imagen-grid"></a>
+        </div>
+
+        <p>Estamos muy emocionados y no podemos esperar a que todos ustedes conozcan a nuestro nuevo miembro de la familia. ¡Gracias por su amor y apoyo!</p>
+
+        <!-- Fila inferior de imágenes (eco11..eco15) -->
+        <div class="neon-box gallery-row">
+            <a href="eco11.jpg" data-index="10" class="thumb-link"><img src="eco11.jpg" alt="Eco 11" class="imagen-grid"></a>
+            <a href="eco12.jpg" data-index="11" class="thumb-link"><img src="eco12.jpg" alt="Eco 12" class="imagen-grid"></a>
+            <a href="eco13.jpg" data-index="12" class="thumb-link"><img src="eco13.jpg" alt="Eco 13" class="imagen-grid"></a>
+            <a href="eco14.jpg" data-index="13" class="thumb-link"><img src="eco14.jpg" alt="Eco 14" class="imagen-grid"></a>
+            <a href="eco15.jpg" data-index="14" class="thumb-link"><img src="eco15.jpg" alt="Eco 15" class="imagen-grid"></a>
+        </div>
+
+        <p>Con cariño,</p>
+        <p class="firma-infantil">Fam Akime</p>
+    </div>
+</body>
+</html>

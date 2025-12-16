@@ -1,0 +1,533 @@
+.gift-modal{
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,0.6);
+    z-index: 10010;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+}
+.gift-modal.open{ opacity: 1; pointer-events: auto; }
+.gift-modal-inner{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding: 22px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,0,234,0.12);
+    text-align: center;
+    color: var(--neon-text);
+    width: min(520px, 92vw);
+}
+.gift-box{
+    width: 120px;
+    height: 120px;
+    margin: 6px auto 10px auto;
+    position: relative;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,0,234,0.18), rgba(15,255,193,0.08));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 0 28px rgba(255,0,234,0.22);
+}
+.gift-box .lid{
+    position:absolute; top:-18px; left:12px; right:12px; height:22px; border-radius:8px; background:linear-gradient(180deg,#ff00ea,#0fffc1);
+    transform-origin: center bottom; transition: transform 300ms ease;
+}
+.gift-box.open .lid{ transform: rotateX(55deg) translateY(-8px); }
+.gift-box .ribbon{ position:absolute; left:0; right:0; top:0; bottom:0; background:linear-gradient(90deg,#ff00ea,#0fffc1); opacity:0.06; }
+.gift-actions{ display:flex; gap:10px; justify-content:center; margin-top:8px; }
+.gift-qr{ margin-top:12px; color:var(--neon-text); }
+
+/* Confetti simple: pulse glow on body */
+.confetti { animation: confettiPulse 1s linear; }
+@keyframes confettiPulse{ 0%{ box-shadow: 0 0 0 transparent } 50%{ box-shadow: 0 0 60px rgba(255,0,234,0.25)} 100%{ box-shadow: 0 0 0 transparent } }
+
+/* WhatsApp share button styling */
+#whatsappShare{ text-decoration:none; display:inline-block; }
+/* Video visible en recuadro con fondo opaco */
+.video-visible {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-radius: 18px;
+    box-shadow: 0 0 30px #ff00ea, 0 0 60px #0fffc1 inset;
+    margin: 28px auto 18px auto;
+    padding: 18px 0;
+    max-width: 500px;
+}
+
+.video-recuadro {
+    width: 70%;
+    max-width: 640px;
+    border-radius: 12px;
+    border: 2px solid rgba(15,255,193,0.9);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25), 0 0 22px rgba(255,0,234,0.18);
+    background: transparent;
+    filter: contrast(1.18) saturate(1.28) brightness(1.06);
+    transition: filter 180ms ease, box-shadow 180ms ease;
+}
+/* Imágenes distribuidas con efecto neón e infantil */
+.imagen-destacada {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-radius: 18px;
+    box-shadow: 0 0 30px #0fffc1, 0 0 60px #ff00ea inset;
+    margin: 28px auto 18px auto;
+    padding: 12px 0;
+    max-width: 400px;
+}
+
+.imagen-distribuida {
+    width: 90%;
+    max-width: 340px;
+    height: auto;
+    border-radius: 16px;
+    border: 3px solid #ff00ea;
+    box-shadow: 0 0 18px #0fffc1, 0 0 30px #ff00ea;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: transparent;
+    object-fit: cover;
+}
+
+/* Galería distribuida: filas de miniaturas */
+.gallery-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 12px 8px;
+}
+
+.imagen-grid {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 3px solid #ff00ea;
+    box-shadow: 0 0 16px #0fffc1, 0 0 28px #ff00ea;
+    transition: transform 0.18s, box-shadow 0.18s;
+    background: transparent;
+}
+
+.imagen-grid:hover {
+    transform: scale(1.08) rotate(-3deg);
+    box-shadow: 0 0 36px #ff00ea, 0 0 72px #0fffc1;
+    border-color: #0fffc1;
+}
+
+/* Imágenes flotantes que antes eran burbujas */
+.float-img {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.85;
+    border-radius: 12px;
+    border: 3px solid rgba(255,0,234,0.9);
+    box-shadow: 0 0 20px rgba(15,255,193,0.8), 0 0 36px rgba(255,0,234,0.6);
+    transform: translate(-50%, -50%);
+}
+
+.imagen-distribuida:hover {
+    transform: scale(1.06) rotate(-2deg);
+    box-shadow: 0 0 40px #ff00ea, 0 0 80px #0fffc1;
+    border-color: #0fffc1;
+}
+/* Negritas infantiles y coloridas */
+b, strong {
+    font-family: 'Baloo 2', 'Fredoka One', 'Pacifico', cursive, Arial, sans-serif;
+    color: #ff00ea;
+    font-weight: bold;
+    text-shadow: 0 0 8px #0fffc1, 0 0 16px #ff00ea, 2px 2px 0 #fff;
+    background: linear-gradient(90deg, #ff00ea 30%, #0fffc1 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1.5px;
+    filter: drop-shadow(0 2px 8px #ff00ea);
+}
+/* Firma infantil y colorida */
+.firma-infantil {
+    font-family: 'Pacifico', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #ff00ea;
+    text-shadow: 0 0 10px #0fffc1, 0 0 20px #ff00ea, 2px 2px 0 #fff;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ff00ea 30%, #0fffc1 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-top: 10px;
+    margin-bottom: 0;
+    text-align: center;
+    filter: drop-shadow(0 2px 8px #ff00ea);
+}
+/* Video de fondo */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100vw;
+    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 1;
+    pointer-events: none;
+    background: transparent;
+    filter: contrast(1.12) saturate(1.25) brightness(1.04) saturate(1.1);
+    will-change: filter, opacity;
+}
+/* Collage de imágenes con efecto neón */
+.collage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    background: transparent;
+    box-shadow: 0 0 30px #0fffc1, 0 0 60px #ff00ea inset;
+    border-radius: 18px;
+    padding: 18px 10px;
+    margin-bottom: 30px;
+}
+
+.collage-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 3px solid #ff00ea;
+    box-shadow: 0 0 18px #0fffc1, 0 0 30px #ff00ea;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.collage-img:hover {
+    transform: scale(1.08) rotate(-2deg);
+    box-shadow: 0 0 40px #ff00ea, 0 0 80px #0fffc1;
+    border-color: #0fffc1;
+}
+
+/* Video con efecto neón */
+.video-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-radius: 18px;
+    box-shadow: 0 0 30px #ff00ea, 0 0 60px #0fffc1 inset;
+    padding: 18px 10px;
+    margin-bottom: 30px;
+}
+
+.neon-video {
+    width: 320px;
+    max-width: 90vw;
+    border-radius: 12px;
+    border: 2px solid rgba(15,255,193,0.95);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.22), 0 0 18px rgba(255,0,234,0.14);
+    filter: contrast(1.12) saturate(1.2) brightness(1.04);
+    transition: filter 160ms ease, box-shadow 160ms ease;
+}
+body {
+    font-family: 'Orbitron', Arial, sans-serif;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: auto;
+    flex-direction: column;
+}
+
+/* Fondo animado de burbujas */
+.bubbles {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+.bubble {
+    position: absolute;
+    bottom: -120px;
+    border-radius: 50%;
+    opacity: 0.95;
+    animation: bubbleUp 12s linear infinite;
+    pointer-events: none;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,0,234,0.12) 20%, rgba(15,255,193,0.06) 60%, transparent 100%);
+    box-shadow: 0 0 30px rgba(255,0,234,0.9), 0 0 60px rgba(15,255,193,0.8) inset;
+    border: 2px solid rgba(255,255,255,0.12);
+}
+@keyframes bubbleUp {
+    0% { transform: translateY(0) scale(1); opacity: 0.5; }
+    80% { opacity: 0.7; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+}
+
+/* Lightbox styles */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,0.7);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease-in-out;
+}
+.lightbox-overlay.open{ opacity:1; pointer-events:auto; }
+.lightbox-img {
+    max-width: 92vw;
+    max-height: 86vh;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 40px rgba(255,0,234,0.6);
+    border: 6px solid rgba(255,0,234,0.12);
+}
+.lightbox-close, .lightbox-prev, .lightbox-next {
+    position: absolute;
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+}
+.lightbox-close { top: 18px; right: 18px; }
+.lightbox-prev { left: 18px; top: 50%; transform: translateY(-50%); }
+.lightbox-next { right: 18px; top: 50%; transform: translateY(-50%); }
+
+/* Ensure bubbles sit behind content but above video */
+.bubbles{ z-index: 0; }
+
+.container {
+    background: transparent;
+    padding: 32px 28px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    max-width: 500px;
+    border: 2px solid #ffe0f7;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #5dc6e8;
+    font-family: 'Baloo 2', 'Fredoka One', 'Segoe Script', 'Comic Sans MS', cursive, Arial, sans-serif;
+    font-size: 2.7em;
+    margin-bottom: 0.5em;
+    letter-spacing: 2px;
+    text-shadow: 2px 4px 12px #fff0fa, 0 2px 0 #b6eaff;
+    font-weight: 700;
+    -webkit-text-stroke: 1px #fff;
+    filter: drop-shadow(0 2px 8px #b6eaff);
+    width: 100%;
+}
+
+/* Destellos animados */
+.sparkle {
+    position: absolute;
+    pointer-events: none;
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #fffbe7 60%, #ffe0f7 100%, transparent 100%);
+    opacity: 0.7;
+    border-radius: 50%;
+    animation: sparkleMove 4s linear infinite;
+    z-index: 2;
+}
+@keyframes sparkleMove {
+    0% { opacity: 0; transform: scale(0.5) translateY(0); }
+    10% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0; transform: scale(1.2) translateY(-80px); }
+}
+
+/* Formato de invitación elegante (fondo transparente, bordes neón) */
+.container {
+    background: transparent;
+    padding: 40px 32px 32px 32px;
+    border-radius: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    max-width: 520px;
+    border: 0;
+    position: relative;
+    z-index: 1;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.container::before, .container::after {
+    content: "";
+    position: absolute;
+    left: 24px; right: 24px;
+    height: 18px;
+    border-top: 2px dashed #e85d9e;
+    border-radius: 8px;
+}
+.container::before {
+    top: 12px;
+}
+.container::after {
+    bottom: 12px;
+}
+
+h1 {
+    margin-top: 0.2em;
+    margin-bottom: 0.7em;
+    padding: 0.2em 0;
+    border-bottom: 2px solid #b6eaff;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #fffbe7 60%, #ffe0f7 100%);
+    box-shadow: 0 2px 8px #ffe0f7;
+}
+
+p {
+    margin-bottom: 1.1em;
+    width: 100%;
+}
+
+.firma {
+    font-family: 'Pacifico', 'Segoe Script', cursive, Arial, sans-serif;
+    color: #e85d9e;
+    font-size: 1.3em;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    letter-spacing: 1.5px;
+}
+/* Variables de color neón */
+:root{
+    --neon-cyan: #0fffc1;
+    --neon-pink: #ff00ea;
+    --neon-text: #cafff0;
+}
+
+/* Texto principal en estilo neón */
+body, .container, p, li, span, .firma, .firma-infantil {
+    color: var(--neon-text);
+    text-shadow: 0 0 8px var(--neon-cyan), 0 0 18px var(--neon-pink);
+}
+
+video {
+    max-width: 100%;
+    margin: 24px 0 18px 0;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+    border: none;
+    filter: contrast(1.08) saturate(1.12) brightness(1.03);
+    transition: filter 160ms ease, box-shadow 160ms ease;
+}
+
+@media (max-width: 600px) {
+    text-shadow: 0 0 10px #ff00ea, 0 0 20px #0fffc1;
+    font-size: 3em;
+    letter-spacing: 2px;
+    .container {
+        padding: 12px 4px;
+        max-width: 98vw;
+    }
+    color: #0fffc1;
+    text-align: center;
+    font-size: 1.3em;
+    text-shadow: 0 0 8px #0fffc1, 0 0 16px #7e0fff;
+    h1 {
+        font-size: 1.5em;
+button, .neon-btn {
+    background: #ff00ea;
+    color: #fff;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    font-family: 'Orbitron', Arial, sans-serif;
+    box-shadow: 0 0 20px #ff00ea, 0 0 40px #0fffc1;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 20px auto;
+    display: block;
+}
+
+button:hover, .neon-btn:hover {
+    background: #0fffc1;
+    color: #7e0fff;
+    box-shadow: 0 0 40px #0fffc1, 0 0 80px #ff00ea;
+}
+
+.neon-box {
+    background: transparent;
+    border: 2px solid #0fffc1;
+    box-shadow: 0 0 30px #0fffc1, 0 0 60px #ff00ea inset;
+    border-radius: 20px;
+    padding: 30px 40px;
+    margin: 40px auto;
+    max-width: 500px;
+    color: #fff;
+    text-align: center;
+}
+
+a {
+    color: #ff00ea;
+    text-shadow: 0 0 8px #ff00ea;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #0fffc1;
+    text-shadow: 0 0 16px #0fffc1;
+    }
+    video {
+        max-width: 98vw;
+    }
+}
+
+/* Invitation QR styling: larger, centered, neon border */
+.neon-box.invitation {
+    max-width: 380px;
+    padding: 18px 20px;
+    margin: 18px auto;
+}
+.invite-qr-wrap img {
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 6px solid var(--neon-pink);
+    box-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-pink) inset;
+    display: block;
+    margin: 8px auto 0 auto;
+    background: #fff;
+}
+
+.neon-box.invitation .neon-btn {
+    margin: 10px 6px 0 6px;
+}
+
+/* Strong separation for invitation so QR doesn't blend with background video */
+.neon-box.invitation {
+    position: relative;
+    z-index: 5;
+    background: rgba(6,8,12,0.56);
+    backdrop-filter: blur(6px) saturate(1.1);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 10px 60px rgba(0,0,0,0.45), 0 0 30px rgba(0,0,0,0.2) inset;
+}
+.invite-qr-wrap {
+    padding: 8px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    display: inline-block;
+}
+.invite-qr-wrap img { background: #fff; }
