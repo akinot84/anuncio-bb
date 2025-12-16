@@ -34,6 +34,121 @@
             <!-- QR movido fuera del modal; se mostrará en la sección de invitación -->
         </div>
     </div>
+    <script>
+    // Generate invitation image (async) and provide download/share
+    async function generateInviteImage(options = {}){
+        const width = options.width || 1200;
+        const height = options.height || 630; // good social size
+        const url = options.url || (location.origin + location.pathname);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        // background neon gradient
+        const g = ctx.createLinearGradient(0,0,width,height);
+        g.addColorStop(0, 'rgba(15,255,193,0.06)');
+        g.addColorStop(0.5, 'rgba(255,0,234,0.06)');
+        g.addColorStop(1, 'rgba(6,8,12,0.06)');
+        ctx.fillStyle = g; ctx.fillRect(0,0,width,height);
+
+        // decorative circles
+        ctx.fillStyle = 'rgba(255,0,234,0.06)';
+        ctx.beginPath(); ctx.arc(width*0.15,height*0.2,120,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(15,255,193,0.05)';
+        ctx.beginPath(); ctx.arc(width*0.85,height*0.8,140,0,Math.PI*2); ctx.fill();
+
+        // Title
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 56px "Baloo 2", Arial';
+        ctx.shadowColor = 'rgba(255,0,234,0.28)';
+        ctx.shadowBlur = 18;
+        ctx.fillText('¡Un regalo de Fam Akime!', width/2, 120);
+
+        // Subtitle
+        ctx.font = '22px Arial';
+        ctx.shadowBlur = 6; ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.fillText('Haz clic en abrir regalo para ver la sorpresa', width/2, 160);
+
+        // Draw QR fetched as blob then imageBitmap
+        const qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=' + encodeURIComponent(url);
+        try{
+            const res = await fetch(qrApi);
+            const blob = await res.blob();
+            const bitmap = await createImageBitmap(blob);
+            const qrSize = Math.min(360, Math.floor(height*0.5));
+            const qrX = width - qrSize - 60;
+            const qrY = height - qrSize - 60;
+            // rounded background for QR
+            ctx.fillStyle = 'rgba(0,0,0,0.36)';
+            roundRect(ctx, qrX-12, qrY-12, qrSize+24, qrSize+24, 18, true, false);
+            ctx.drawImage(bitmap, qrX, qrY, qrSize, qrSize);
+        }catch(e){ console.warn('QR fetch failed', e); }
+
+        // Link text under QR
+        ctx.font = '18px Arial'; ctx.fillStyle = '#cafff0'; ctx.shadowBlur = 8;
+        ctx.textAlign = 'center'; ctx.fillText(url, width - 60 - 180, height - 24);
+
+        // Return blob
+        return new Promise((resolve)=>{
+            canvas.toBlob(function(b){ resolve(b); }, 'image/png', 0.9);
+        });
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+        if (typeof r === 'undefined') r = 5;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+    }
+
+    // Hook buttons
+    document.addEventListener('DOMContentLoaded', function(){
+        const downloadBtn = document.getElementById('downloadInviteBtn');
+        const shareBtn = document.getElementById('shareImageBtn');
+        const inviteLinkEl = document.getElementById('invite-link');
+
+        if(downloadBtn){
+            downloadBtn.addEventListener('click', async function(){
+                const inviteUrl = (inviteLinkEl && inviteLinkEl.href && inviteLinkEl.href !== '#') ? inviteLinkEl.href : (location.origin + location.pathname);
+                const blob = await generateInviteImage({url: inviteUrl});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'invitacion_fam_akime.png';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+            });
+        }
+
+        if(shareBtn){
+            shareBtn.addEventListener('click', async function(){
+                const inviteUrl = (inviteLinkEl && inviteLinkEl.href && inviteLinkEl.href !== '#') ? inviteLinkEl.href : (location.origin + location.pathname);
+                const blob = await generateInviteImage({url: inviteUrl});
+                try{
+                    const filesArray = [new File([blob], 'invitacion_fam_akime.png', {type: 'image/png'})];
+                    if(navigator.canShare && navigator.canShare({files: filesArray})){
+                        await navigator.share({files: filesArray, text: 'Invitación Fam Akime'});
+                        return;
+                    }
+                }catch(e){ console.warn('Web Share failed', e); }
+                // fallback: download
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'invitacion_fam_akime.png';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
+            });
+        }
+    });
+
+    </script>
     <!-- Video de fondo -->
     <video autoplay muted loop playsinline id="bg-video">
         <source src="eco-video.mp4" type="video/mp4">
@@ -205,9 +320,11 @@
             <div class="invite-qr-wrap">
                 <img id="invite-qr" src="" alt="QR del enlace" />
             </div>
-            <div style="margin-top:8px">
+            <div style="margin-top:8px" class="invite-actions">
                 <a id="invite-link" href="#" class="neon-btn" target="_blank" rel="noopener">Abrir invitación</a>
                 <a id="invite-whatsapp" href="#" class="neon-btn" target="_blank" rel="noopener">Compartir por WhatsApp</a>
+                <button id="downloadInviteBtn" class="neon-btn">Descargar tarjeta</button>
+                <button id="shareImageBtn" class="neon-btn">Compartir imagen</button>
             </div>
         </div>
                 <!-- Video visible en recuadro -->
