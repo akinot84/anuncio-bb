@@ -19,6 +19,32 @@
     color: var(--neon-text);
     width: min(520px, 92vw);
 }
+
+/* Neon background while locked before opening the gift */
+body.locked::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: radial-gradient(ellipse at 20% 20%, rgba(255,0,234,0.18), transparent 15%),
+                radial-gradient(ellipse at 80% 80%, rgba(15,255,193,0.12), transparent 18%),
+                linear-gradient(135deg, rgba(15,255,193,0.06), rgba(255,0,234,0.06));
+    backdrop-filter: blur(6px) saturate(1.1);
+}
+
+/* Explode animation for the modal when opening */
+.gift-modal.explode .gift-modal-inner {
+    animation: modalExplode 520ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+@keyframes modalExplode{
+    0% { transform: scale(1) translateY(0); opacity: 1; filter: none; }
+    40% { transform: scale(1.06) translateY(-6px); opacity: 1; filter: drop-shadow(0 0 36px rgba(255,0,234,0.6)); }
+    100% { transform: scale(2.6) translateY(-40px); opacity: 0; filter: blur(8px) drop-shadow(0 0 120px rgba(255,0,234,0.45)); }
+}
+
+/* Slight pop for the gift box */
+.gift-modal .gift-box { transition: transform 360ms ease, box-shadow 360ms ease; }
+.gift-modal.explode .gift-box { transform: scale(1.08); box-shadow: 0 0 80px rgba(255,0,234,0.28); }
 .gift-box{
     width: 120px;
     height: 120px;
@@ -531,3 +557,48 @@ a:hover {
     display: inline-block;
 }
 .invite-qr-wrap img { background: #fff; }
+
+/* Inicialmente ocultar la invitación en la página principal; se mostrará
+   sólo después de abrir el regalo (clase .revealed añadida por JS) */
+.neon-box.invitation { display: none; }
+.neon-box.invitation.revealed { display: block; }
+
+/* Control visual del QR: se mantiene oculto hasta que se añada la clase .show */
+.invite-qr-wrap { opacity: 0; height: 0; overflow: hidden; transition: opacity 300ms ease, height 300ms ease; }
+.invite-qr-wrap.show { opacity: 1; height: 280px; }
+
+/* Responsive tweaks para móviles */
+@media (max-width: 600px) {
+    .invite-qr-wrap img {
+        width: 72vw;
+        height: auto;
+        max-width: 360px;
+    }
+    .gift-modal-inner {
+        width: min(92vw, 460px);
+        padding: 14px;
+    }
+    .video-recuadro { width: 92%; }
+    .container { padding: 16px; max-width: 96vw; }
+}
+
+/* QR pulse animation when the invitation is revealed */
+.invite-qr-wrap.show img {
+    animation: qrPulse 1400ms ease-in-out both;
+    transform-origin: center center;
+}
+@keyframes qrPulse {
+    0% { transform: scale(0.98); box-shadow: 0 0 18px rgba(0,0,0,0.04); }
+    40% { transform: scale(1.06); box-shadow: 0 0 36px rgba(255,0,234,0.15), 0 0 72px rgba(15,255,193,0.08) inset; }
+    70% { transform: scale(1.02); box-shadow: 0 0 24px rgba(255,0,234,0.12); }
+    100% { transform: scale(1); box-shadow: 0 0 18px rgba(0,0,0,0.04); }
+}
+
+/* Smooth entrance for the invitation box */
+.neon-box.invitation.revealed {
+    animation: inviteIn 380ms cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes inviteIn {
+    0% { transform: translateY(8px) scale(0.98); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}

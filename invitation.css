@@ -1,0 +1,22 @@
+/* Simple printable invitation card */
+:root{ --pink:#ff00ea; --cyan:#0fffc1; --bg:#061018; }
+html,body{ height:100%; margin:0; font-family: 'Baloo 2', Arial, sans-serif; background:linear-gradient(180deg, rgba(6,8,12,0.98), rgba(6,8,12,0.95)); color:var(--cyan); }
+.card{ width:820px; max-width:94vw; margin:28px auto; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:18px; padding:26px; box-shadow:0 10px 40px rgba(0,0,0,0.6); border:2px solid rgba(255,0,234,0.08); }
+header h1{ margin:0; font-size:2.2rem; color:var(--pink); text-shadow:0 0 18px rgba(255,0,234,0.25); }
+.sub{ margin-top:6px; color:var(--cyan); opacity:0.95; }
+.main{ display:flex; gap:18px; margin-top:18px; align-items:center; }
+.left{ flex:1; }
+.message{ background:transparent; font-size:1.05rem; line-height:1.5; color:var(--neon-text, #cafff0); }
+.btn{ display:inline-block; margin-top:14px; background:linear-gradient(90deg,var(--pink),var(--cyan)); color:#fff; padding:12px 18px; border-radius:12px; text-decoration:none; box-shadow:0 6px 28px rgba(0,0,0,0.4); }
+.qr{ width:380px; text-align:center; }
+.qr img{ width:360px; height:360px; border-radius:12px; border:6px solid var(--pink); background:#fff; box-shadow:0 0 40px rgba(15,255,193,0.15); }
+.hint{ color:#e6fdf6; margin-top:8px; font-size:0.95rem; }
+footer{ margin-top:18px; display:flex; justify-content:space-between; align-items:center; }
+.print{ background:transparent; color:var(--cyan); border:2px dashed rgba(255,255,255,0.06); padding:8px 12px; border-radius:10px; cursor:pointer; }
+
+@media print{
+  body{ background:#fff; color:#000 }
+  .card{ box-shadow:none; border:none; background:#fff }
+  .qr img{ border:4px solid #000 }
+  .btn, .print{ display:none }
+}
