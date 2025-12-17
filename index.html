@@ -3,388 +3,997 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Nueva Adición a la Familia!</title>
-    <!-- Open Graph / Social preview -->
-    <meta property="og:title" content="¡Una sorpresa de Navidad de Fam Akime!" />
-    <meta property="og:description" content="Abre tu regalo y descubre la noticia especial que tenemos para ti." />
-    <meta property="og:image" content="preview-gift.jpg" />
-    <meta property="og:image:alt" content="Regalo de Navidad — ¡Haz clic para abrir!" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://example.com/" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <!-- Google Fonts para letras infladas y amigables -->
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Fredoka+One&family=Pacifico&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>Un Nuevo Capítulo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(120deg, #00f0ff 0%, #ff00ea 50%, #fffb00 100%);
+            box-shadow: 0 0 80px 10px #00f0ff, 0 0 120px 30px #ff00ea inset;
+            min-height: 100vh;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 20px 20px 40px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            color: #222;
+            margin-top: 0px;
+            scroll-behavior: smooth;
+        }
+
+        body.modal-open,
+        body.final-reveal-open {
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0,240,255,0.18) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(255,0,234,0.18) 0%, transparent 60%),
+                radial-gradient(circle at 50% 10%, rgba(255,251,0,0.12) 0%, transparent 60%);
+            z-index: -2;
+            animation: none;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: none;
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+            margin: auto;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #9b59b6, #e74c3c);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            box-shadow: none;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.2);
+            border: 2px solid rgba(52, 152, 219, 0.4);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .step-dot.active {
+            background: #ff00ea;
+            border-color: #00f0ff;
+            box-shadow: 0 0 16px #ff00ea, 0 0 8px #00f0ff;
+            transform: scale(1.2);
+        }
+
+        .step-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(52, 152, 219, 0.2);
+            transition: background 0.4s ease;
+        }
+
+        .step-line.active {
+            background: linear-gradient(90deg, rgba(52, 152, 219, 0.6), transparent);
+        }
+
+        .step-panel {
+            background: rgba(255,255,255,0.92);
+            border: 2px solid #ff00ea;
+            box-shadow: 0 0 16px 2px #ff00ea, 0 0 8px 2px #00f0ff;
+            border-radius: 12px;
+            padding: 35px 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            animation: panelEnter 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: visible;
+        }
+
+        @keyframes panelEnter {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .step-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.3), transparent);
+            opacity: 0.5;
+        }
+
+        .step-panel.hidden {
+            display: none;
+        }
+
+        .step-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #00f0ff, #fffb00, #ff00ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: #222;
+            color: #222;
+            background-clip: text;
+            letter-spacing: 0.5px;
+            animation: neonGlow 2s infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from {
+                text-shadow: 0 0 8px #00f0ff, 0 0 16px #ff00ea, 0 0 2px #fffb00;
+            }
+            to {
+                text-shadow: 0 0 24px #ff00ea, 0 0 32px #00f0ff, 0 0 8px #fffb00;
+            }
+        }
+
+        .step-subtitle {
+            font-size: 1em;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .step-content {
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: #222;
+            margin: 12px 0;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-icon {
+            font-size: 3em;
+            margin: 8px 0;
+            display: inline-block;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border: 2px solid #3498db;
+            background: transparent;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Lato', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(52, 152, 219, 0.1);
+            transition: left 0.35s ease;
+            z-index: -1;
+        }
+
+        .btn:hover {
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            border-color: #ff00ea;
+            color: #222;
+            background: linear-gradient(90deg, #fff, #e0e0ff);
+            text-shadow: 0 1px 8px #ffb2ea, 0 1px 4px #b2f0ff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 12px 2px #ffb2ea, 0 0 16px 4px #b2f0ff inset;
+            color: #fff;
+            background: linear-gradient(90deg, #00f0ff, #ff00ea);
+            animation: pulseBtn 0.5s;
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .final-reveal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dce8f0 100%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: revealFadeIn 0.6s ease-out;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .final-reveal.show {
+            display: flex;
+        }
+
+        @keyframes revealFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .reveal-content {
+            text-align: center;
+            animation: revealScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes revealScale {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .final-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 0.8s ease-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.1); }
+        }
+
+        .final-title {
+            background: linear-gradient(90deg, #ff00ea, #00f0ff, #fffb00, #ff00ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: #222;
+            color: #222;
+            background-clip: text;
+            text-shadow: 0 0 12px #ff00ea, 0 0 8px #00f0ff;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3em;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            animation: neonGlow 2s infinite alternate;
+        }
+
+        .final-text {
+            font-size: 1em;
+            color: #222;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            z-index: 999;
+            animation: confettiFall 2.5s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            0% { top: -10px; opacity: 1; }
+            100% { top: 100vh; opacity: 0.2; }
+        }
+
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+            animation: fadeInUp 1.2s;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            aspect-ratio: 1;
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .gallery-item:hover {
+            border-color: #3498db;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .video-container {
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            animation: fadeInUp 1.2s;
+            background: #f9f9f9;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 300px;
+            max-height: 450px;
+            object-fit: contain;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: transparent;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow: hidden;
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 12px;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 2.5em;
+            color: #ecf0f1;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .close-modal:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        .final-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 6px;
+            margin-top: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 0.8s ease-out 0.8s backwards;
+        }
+
+        .final-gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+        }
+
+        .final-gallery-item:hover {
+            border-color: #3498db;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.25);
+        }
+
+        .final-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .step-panel {
+                padding: 40px 25px;
+                min-height: auto;
+            }
+
+            .step-title {
+                font-size: 2em;
+            }
+
+            .step-icon {
+                font-size: 3.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .final-reveal {
+                padding: 20px;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                align-items: flex-start;
+            }
+
+            .final-reveal.show {
+                display: flex !important;
+            }
+
+            .reveal-content {
+                width: 100%;
+                max-width: 90%;
+                padding: 40px 20px 80px 20px;
+                margin: auto;
+            }
+
+            .final-title {
+                font-size: 1.8em;
+                line-height: 1.2;
+                margin-bottom: 12px;
+                word-wrap: break-word;
+            }
+
+            .final-icon {
+                font-size: 4em;
+                margin-bottom: 15px;
+            }
+
+            .final-text {
+                font-size: 0.95em;
+                line-height: 1.4;
+            }
+
+            .media-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            .final-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+                gap: 8px;
+                max-width: 100%;
+                margin: 15px auto;
+            }
+
+            .final-gallery-item {
+                aspect-ratio: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 15px 30px 15px;
+            }
+
+            .step-panel {
+                padding: 30px 15px;
+                border-radius: 10px;
+            }
+
+            .step-title {
+                font-size: 1.6em;
+            }
+
+            .step-subtitle {
+                font-size: 0.9em;
+            }
+
+            .step-content {
+                font-size: 0.85em;
+            }
+
+            .reveal-content {
+                padding: 15px;
+            }
+
+            .final-title {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+
+            .final-icon {
+                font-size: 3em;
+                margin-bottom: 10px;
+            }
+
+            .final-text {
+                font-size: 0.9em;
+                margin: 8px 0;
+            }
+
+            .final-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                gap: 6px;
+                margin: 12px auto;
+            }
+
+            .button-group {
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.8em;
+            }
+
+            .video-container video {
+                min-height: 200px;
+                max-height: 350px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Modal regalo (se muestra al entrar) -->
-    <div id="gift-modal" class="gift-modal" aria-hidden="true">
-        <div class="gift-modal-inner">
-            <div class="gift-box" id="giftBox">
-                <div class="ribbon"></div>
-                <div class="lid"></div>
-                <div class="box-face">🎁</div>
-            </div>
-            <h2>¡Un regalo de Fam Akime!</h2>
-            <p>Haz clic en "Abrir regalo" para ver la sorpresa.</p>
-            <div class="gift-actions">
-                <button id="openGiftBtn" class="neon-btn">Abrir regalo</button>
-                <a id="whatsappShare" class="neon-btn" href="#">Compartir por WhatsApp</a>
-            </div>
-            <!-- QR movido fuera del modal; se mostrará en la sección de invitación -->
-        </div>
-    </div>
-    <script>
-    // Generate invitation image (async) and provide download/share
-    async function generateInviteImage(options = {}){
-        const width = options.width || 1200;
-        const height = options.height || 630; // good social size
-        const url = options.url || (location.origin + location.pathname);
+    <div class="progress-bar" id="progressBar"></div>
 
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-
-        // background neon gradient
-        const g = ctx.createLinearGradient(0,0,width,height);
-        g.addColorStop(0, 'rgba(15,255,193,0.06)');
-        g.addColorStop(0.5, 'rgba(255,0,234,0.06)');
-        g.addColorStop(1, 'rgba(6,8,12,0.06)');
-        ctx.fillStyle = g; ctx.fillRect(0,0,width,height);
-
-        // decorative circles
-        ctx.fillStyle = 'rgba(255,0,234,0.06)';
-        ctx.beginPath(); ctx.arc(width*0.15,height*0.2,120,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = 'rgba(15,255,193,0.05)';
-        ctx.beginPath(); ctx.arc(width*0.85,height*0.8,140,0,Math.PI*2); ctx.fill();
-
-        // Title
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 56px "Baloo 2", Arial';
-        ctx.shadowColor = 'rgba(255,0,234,0.28)';
-        ctx.shadowBlur = 18;
-        ctx.fillText('¡Un regalo de Fam Akime!', width/2, 120);
-
-        // Subtitle
-        ctx.font = '22px Arial';
-        ctx.shadowBlur = 6; ctx.fillStyle = 'rgba(255,255,255,0.92)';
-        ctx.fillText('Haz clic en abrir regalo para ver la sorpresa', width/2, 160);
-
-        // Draw QR fetched as blob then imageBitmap
-        const qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=' + encodeURIComponent(url);
-        try{
-            const res = await fetch(qrApi);
-            const blob = await res.blob();
-            const bitmap = await createImageBitmap(blob);
-            const qrSize = Math.min(360, Math.floor(height*0.5));
-            const qrX = width - qrSize - 60;
-            const qrY = height - qrSize - 60;
-            // rounded background for QR
-            ctx.fillStyle = 'rgba(0,0,0,0.36)';
-            roundRect(ctx, qrX-12, qrY-12, qrSize+24, qrSize+24, 18, true, false);
-            ctx.drawImage(bitmap, qrX, qrY, qrSize, qrSize);
-        }catch(e){ console.warn('QR fetch failed', e); }
-
-        // Link text under QR
-        ctx.font = '18px Arial'; ctx.fillStyle = '#cafff0'; ctx.shadowBlur = 8;
-        ctx.textAlign = 'center'; ctx.fillText(url, width - 60 - 180, height - 24);
-
-        // Return blob
-        return new Promise((resolve)=>{
-            canvas.toBlob(function(b){ resolve(b); }, 'image/png', 0.9);
-        });
-    }
-
-    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
-        if (typeof r === 'undefined') r = 5;
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-        if (fill) ctx.fill();
-        if (stroke) ctx.stroke();
-    }
-
-    // Hook buttons
-    document.addEventListener('DOMContentLoaded', function(){
-        const downloadBtn = document.getElementById('downloadInviteBtn');
-        const shareBtn = document.getElementById('shareImageBtn');
-        const inviteLinkEl = document.getElementById('invite-link');
-
-        if(downloadBtn){
-            downloadBtn.addEventListener('click', async function(){
-                const inviteUrl = (inviteLinkEl && inviteLinkEl.href && inviteLinkEl.href !== '#') ? inviteLinkEl.href : (location.origin + location.pathname);
-                const blob = await generateInviteImage({url: inviteUrl});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'invitacion_fam_akime.png';
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
-            });
-        }
-
-        if(shareBtn){
-            shareBtn.addEventListener('click', async function(){
-                const inviteUrl = (inviteLinkEl && inviteLinkEl.href && inviteLinkEl.href !== '#') ? inviteLinkEl.href : (location.origin + location.pathname);
-                const blob = await generateInviteImage({url: inviteUrl});
-                try{
-                    const filesArray = [new File([blob], 'invitacion_fam_akime.png', {type: 'image/png'})];
-                        if(navigator.canShare && navigator.canShare({files: filesArray})){
-                            const shareText = '🎁 Fam Akime les tiene un regalo: ' + inviteUrl;
-                            await navigator.share({files: filesArray, text: shareText});
-                            return;
-                        }
-                }catch(e){ console.warn('Web Share failed', e); }
-                // fallback: download + open WhatsApp share with text containing link
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'invitacion_fam_akime.png';
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(()=>URL.revokeObjectURL(a.href), 3000);
-                try{
-                    const waText = encodeURIComponent('🎁 Fam Akime les tiene un regalo: ' + inviteUrl);
-                    const waUrl = 'https://wa.me/?text=' + waText;
-                    // open WhatsApp web/share in new tab so user can paste image + link
-                    window.open(waUrl, '_blank', 'noopener');
-                }catch(e){/* ignore */}
-            });
-        }
-    });
-
-    </script>
-    <!-- Video de fondo -->
-    <video autoplay muted loop playsinline id="bg-video">
-        <source src="eco-video.mp4" type="video/mp4">
-        Tu navegador no soporta la etiqueta de video.
-    </video>
-    <div class="bubbles">
-        <!-- Burbujas neón (decorativas, pointer-events none) -->
-        <div class="bubble" style="left:8vw; width:90px; height:90px; animation-delay: 0s;"></div>
-        <div class="bubble" style="left:24vw; width:64px; height:64px; animation-delay: 2s;"></div>
-        <div class="bubble" style="left:40vw; width:120px; height:120px; animation-delay: 4s;"></div>
-        <div class="bubble" style="left:62vw; width:72px; height:72px; animation-delay: 1s;"></div>
-        <div class="bubble" style="left:78vw; width:48px; height:48px; animation-delay: 3s;"></div>
-        <div class="bubble" style="left:18vw; width:110px; height:110px; animation-delay: 5s;"></div>
-        <div class="bubble" style="left:56vw; width:56px; height:56px; animation-delay: 6s;"></div>
-    </div>
-    <!-- Lightbox overlay -->
-    <div id="lightbox" class="lightbox-overlay" aria-hidden="true">
-        <button class="lightbox-close" aria-label="Cerrar">✕</button>
-        <button class="lightbox-prev" aria-label="Anterior">◀</button>
-        <img class="lightbox-img" src="" alt="">
-        <button class="lightbox-next" aria-label="Siguiente">▶</button>
-    </div>
-
-    <script>
-    // Lightbox básico: recopila miniaturas por clase .thumb-link
-    (function(){
-        const links = Array.from(document.querySelectorAll('.thumb-link'));
-        if(!links.length) return;
-        const overlay = document.getElementById('lightbox');
-        const img = overlay.querySelector('.lightbox-img');
-        const closeBtn = overlay.querySelector('.lightbox-close');
-        const prevBtn = overlay.querySelector('.lightbox-prev');
-        const nextBtn = overlay.querySelector('.lightbox-next');
-        let current = 0;
-
-        function openAt(index){
-            const url = links[index].getAttribute('href');
-            img.src = url;
-            img.alt = links[index].querySelector('img')?.alt || '';
-            overlay.classList.add('open');
-            overlay.setAttribute('aria-hidden','false');
-            current = index;
-        }
-        function close(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); img.src=''; }
-        function next(){ openAt((current+1)%links.length); }
-        function prev(){ openAt((current-1+links.length)%links.length); }
-
-        links.forEach((a,i)=>{
-            a.addEventListener('click', function(e){
-                e.preventDefault();
-                openAt(i);
-            });
-        });
-
-        closeBtn.addEventListener('click', close);
-        overlay.addEventListener('click', function(e){ if(e.target===overlay) close(); });
-        nextBtn.addEventListener('click', function(e){ e.stopPropagation(); next(); });
-        prevBtn.addEventListener('click', function(e){ e.stopPropagation(); prev(); });
-        document.addEventListener('keydown', function(e){ if(overlay.classList.contains('open')){
-            if(e.key==='Escape') close();
-            if(e.key==='ArrowRight') next();
-            if(e.key==='ArrowLeft') prev();
-        }});
-    })();
-
-    // Modal regalo: muestra un regalo al entrar y genera QR/compartir
-    (function(){
-        const modal = document.getElementById('gift-modal');
-        const openBtn = document.getElementById('openGiftBtn');
-        const sfx = document.getElementById('open-sfx');
-
-        // Invitation elements (moved QR out of modal)
-        const inviteQr = document.getElementById('invite-qr');
-        const inviteLink = document.getElementById('invite-link');
-        const inviteWhatsapp = document.getElementById('invite-whatsapp');
-        const modalWhatsapp = document.getElementById('whatsappShare');
-
-        function setQR(){
-            try{
-                const url = location.href;
-                const api = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(url);
-                if(inviteQr) inviteQr.src = api;
-            }catch(e){ console.warn(e); }
-        }
-
-        function setWhatsapp(){
-            const url = location.href;
-            const text = encodeURIComponent('🎁 Fam Akime les tiene un regalo de Navidad. Ábrelo aquí: ' + url);
-            const wa = 'https://wa.me/?text=' + text;
-            if(inviteWhatsapp) inviteWhatsapp.href = wa;
-            if(modalWhatsapp) modalWhatsapp.href = wa;
-        }
-
-        function setInviteLink(){
-            const url = location.href;
-            if(inviteLink) { inviteLink.href = url; inviteLink.textContent = 'Abrir invitación'; }
-        }
-
-        // show modal unless seen in session
-        function revealInvitation(){
-            // show the invitation area and QR
-            const inviteBox = document.querySelector('.neon-box.invitation');
-            const inviteWrap = document.querySelector('.invite-qr-wrap');
-            if(inviteBox) inviteBox.classList.add('revealed');
-            if(inviteWrap) inviteWrap.classList.add('show');
-        }
-
-        if(!sessionStorage.getItem('giftSeen')){
-            // lock the page so only modal is visible
-            document.body.classList.add('locked');
-            modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-            // prepare links but do not reveal QR until user opens the gift
-            setWhatsapp();
-            setInviteLink();
-        } else {
-            // already opened this session — ensure invitation elements are populated and visible
-            setQR(); setWhatsapp(); setInviteLink();
-            revealInvitation();
-            document.body.classList.remove('locked');
-        }
-
-        openBtn.addEventListener('click', function(){
-            // play a short "boom" animation then reveal
-            modal.classList.add('explode');
-            // immediate small pop sound
-            if(sfx && typeof sfx.play === 'function'){
-                sfx.currentTime = 0;
-                sfx.play().catch(()=>{});
-            }
-            // add a tiny delay to let the animation run, then reveal
-            setTimeout(()=>{
-                // confetti and reveal
-                document.body.classList.add('confetti');
-                setTimeout(()=>document.body.classList.remove('confetti'), 2600);
-                // finalize: hide modal, reveal QR and content
-                modal.classList.remove('open','explode'); modal.setAttribute('aria-hidden','true');
-                sessionStorage.setItem('giftSeen','1');
-                try{ setQR(); }catch(e){}
-                revealInvitation();
-                document.body.classList.remove('locked');
-            }, 480);
-        });
-
-        // allow clicking outside or ESC to close — treat as opening the gift (reveal content)
-        modal.addEventListener('click', function(e){ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); try{ setQR(); }catch(e){}; revealInvitation(); document.body.classList.remove('locked'); }});
-        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); sessionStorage.setItem('giftSeen','1'); try{ setQR(); }catch(e){}; revealInvitation(); document.body.classList.remove('locked'); }});
-    })();
-
-    // make invite QR clickable as a fallback (opens invite link in new tab)
-    (function(){
-        const inviteQr = document.getElementById('invite-qr');
-        const inviteLink = document.getElementById('invite-link');
-        if(inviteQr){
-            inviteQr.style.cursor = 'pointer';
-            inviteQr.addEventListener('click', function(){
-                const url = (inviteLink && inviteLink.href && inviteLink.href !== '#') ? inviteLink.href : location.href;
-                try{ window.open(url, '_blank', 'noopener'); }catch(e){ location.href = url; }
-            });
-        }
-    })();
-
-    
-    </script>
     <div class="container">
-        <!-- Sección de invitación separada (QR + compartir) -->
-        <div class="neon-box invitation">
-            <h3>Invitación / Regalo</h3>
-            <p>Comparte este enlace o escanea el QR con tu teléfono:</p>
-            <div class="invite-qr-wrap">
-                <img id="invite-qr" src="" alt="QR del enlace" />
-            </div>
-            <div style="margin-top:8px" class="invite-actions">
-                <a id="invite-link" href="#" class="neon-btn" target="_blank" rel="noopener">Abrir invitación</a>
-                <a id="invite-whatsapp" href="#" class="neon-btn" target="_blank" rel="noopener">Compartir por WhatsApp</a>
-                <button id="downloadInviteBtn" class="neon-btn">Descargar tarjeta</button>
-                <button id="shareImageBtn" class="neon-btn">Compartir imagen</button>
-                <a id="openInviteImage" class="neon-btn" href="invite-card.png" target="_blank" rel="noopener">Ver tarjeta</a>
+        <div class="step-indicator">
+            <div class="step-dot active" onclick="goToStep(0)"></div>
+            <div class="step-line active"></div>
+            <div class="step-dot" onclick="goToStep(1)"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" onclick="goToStep(2)"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" onclick="goToStep(3)"></div>
+        </div>
+
+        <div class="step-panel" id="step-0">
+            <h2 class="step-title">BIENVENIDOS</h2>
+            <p class="step-subtitle">Al Inicio de un Nuevo Capítulo</p>
+            <p class="step-content">
+                Hemos preparado algo especial para ustedes. Una noticia que cambiará nuestras vidas para siempre. 
+                ¿Están listos para descubrir qué es?
+            </p>
+            <div class="step-icon">🌟</div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
             </div>
         </div>
-                <!-- Video visible en recuadro -->
-                <div class="neon-box video-visible">
-                    <video controls class="video-recuadro">
-                        <source src="bb2.mp4" type="video/mp4">
-                        Tu navegador no soporta la etiqueta de video.
-                    </video>
+
+        <div class="step-panel hidden" id="step-1">
+            <h2 class="step-title">¿LO SABES?</h2>
+            <p class="step-subtitle">Las Pistas Están Aquí</p>
+            <p class="step-content">
+                Algo pequeño, algo grande, algo lleno de vida y esperanza. 
+                Nos hace increíblemente felices imaginar cómo será nuestro futuro juntos.
+            </p>
+            <div class="step-icon">🔍</div>
+            <div class="media-gallery" id="gallery-1">
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco1.jpg')">
+                    <img src="videos y fotos/eco1.jpg" alt="Foto 1">
                 </div>
-                <!-- Efecto corto al abrir el regalo: usa open-sfx.mp3 en la carpeta o fallback público -->
-                <audio id="open-sfx" preload="auto">
-                    <source src="open-sfx.mp3" type="audio/mpeg">
-                    <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
-                    Tu navegador no soporta audio.
-                </audio>
-        <h1>¡Tenemos una Sorpresa Especial!</h1>
-        <p>Queridos familiares,</p>
-        <p>Con mucho amor y alegría, queremos compartir con ustedes una noticia emocionante. ¡Vamos a tener otro bebé!</p>
-
-        <!-- Fila superior de imágenes (eco1..eco5) -->
-        <div class="neon-box gallery-row">
-            <a href="eco1.jpg" data-index="0" class="thumb-link"><img src="eco1.jpg" alt="Eco 1" class="imagen-grid"></a>
-            <a href="eco2.jpg" data-index="1" class="thumb-link"><img src="eco2.jpg" alt="Eco 2" class="imagen-grid"></a>
-            <a href="eco3.jpg" data-index="2" class="thumb-link"><img src="eco3.jpg" alt="Eco 3" class="imagen-grid"></a>
-            <a href="eco4.jpg" data-index="3" class="thumb-link"><img src="eco4.jpg" alt="Eco 4" class="imagen-grid"></a>
-            <a href="eco5.jpg" data-index="4" class="thumb-link"><img src="eco5.jpg" alt="Eco 5" class="imagen-grid"></a>
-        </div>
-        <p>Queridos familiares,</p>
-        <p>Con mucho amor y alegría, queremos compartir con ustedes una noticia emocionante. ¡Vamos a tener otro bebé!</p>
-
-        <!-- Fila central de imágenes (eco6..eco10) -->
-        <div class="neon-box gallery-row">
-            <a href="eco6.jpg" data-index="5" class="thumb-link"><img src="eco6.jpg" alt="Eco 6" class="imagen-grid"></a>
-            <a href="eco7.jpg" data-index="6" class="thumb-link"><img src="eco7.jpg" alt="Eco 7" class="imagen-grid"></a>
-            <a href="eco8.jpg" data-index="7" class="thumb-link"><img src="eco8.jpg" alt="Eco 8" class="imagen-grid"></a>
-            <a href="eco9.jpg" data-index="8" class="thumb-link"><img src="eco9.jpg" alt="Eco 9" class="imagen-grid"></a>
-            <a href="eco10.jpg" data-index="9" class="thumb-link"><img src="eco10.jpg" alt="Eco 10" class="imagen-grid"></a>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco2.jpg')">
+                    <img src="videos y fotos/eco2.jpg" alt="Foto 2">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco3.jpg')">
+                    <img src="videos y fotos/eco3.jpg" alt="Foto 3">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco4.jpg')">
+                    <img src="videos y fotos/eco4.jpg" alt="Foto 4">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco5.jpg')">
+                    <img src="videos y fotos/eco5.jpg" alt="Foto 5">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco6.jpg')">
+                    <img src="videos y fotos/eco6.jpg" alt="Foto 6">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente</button>
+            </div>
         </div>
 
-        <p>Estamos muy emocionados y no podemos esperar a que todos ustedes conozcan a nuestro nuevo miembro de la familia. ¡Gracias por su amor y apoyo!</p>
-
-        <!-- Fila inferior de imágenes (eco11..eco15) -->
-        <div class="neon-box gallery-row">
-            <a href="eco11.jpg" data-index="10" class="thumb-link"><img src="eco11.jpg" alt="Eco 11" class="imagen-grid"></a>
-            <a href="eco12.jpg" data-index="11" class="thumb-link"><img src="eco12.jpg" alt="Eco 12" class="imagen-grid"></a>
-            <a href="eco13.jpg" data-index="12" class="thumb-link"><img src="eco13.jpg" alt="Eco 13" class="imagen-grid"></a>
-            <a href="eco14.jpg" data-index="13" class="thumb-link"><img src="eco14.jpg" alt="Eco 14" class="imagen-grid"></a>
-            <a href="eco15.jpg" data-index="14" class="thumb-link"><img src="eco15.jpg" alt="Eco 15" class="imagen-grid"></a>
+        <div class="step-panel hidden" id="step-2">
+            <h2 class="step-title">CASI AHORA</h2>
+            <p class="step-subtitle">Se Acerca el Momento</p>
+            <div class="video-container">
+                <video controls>
+                    <source src="videos y fotos/bb2.mp4" type="video/mp4">
+                    Tu navegador no soporta videos HTML5.
+                </video>
+            </div>
+            <div class="video-container">
+                <video controls>
+                    <source src="videos y fotos/eco-video.mp4" type="video/mp4">
+                    Tu navegador no soporta videos HTML5.
+                </video>
+            </div>
+            <p class="step-content">
+                Queremos compartir esta noticia primero con ustedes, nuestra familia querida.<br>
+                ¡Y ahora, un recuerdo aún más especial en video!
+                Su amor y apoyo han sido fundamentales en nuestras vidas.
+            </p>
+            <div class="button-group">
+                <button class="btn" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="nextStep()">¡Revelación!</button>
+            </div>
         </div>
 
-        <p>Con cariño,</p>
-        <p class="firma-infantil">Fam Akime</p>
+        <div class="step-panel hidden" id="step-3">
+            <h2 class="step-title">¡ESTAMOS LISTOS!</h2>
+            <p class="step-subtitle">La Verdad Está Aquí</p>
+            <p class="step-content">
+                Queremos que cierren los ojos un momento. Imaginen la vida llena de nuevas aventuras,
+                risas inocentes, y un amor incondicional que no conocían que podían sentir.
+            </p>
+            <div class="step-icon">💝</div>
+            <div class="media-gallery" id="gallery-3">
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco13.jpg')">
+                    <img src="videos y fotos/eco13.jpg" alt="Foto 13">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco14.jpg')">
+                    <img src="videos y fotos/eco14.jpg" alt="Foto 14">
+                </div>
+                <div class="gallery-item" onclick="openModal('videos%20y%20fotos/eco15.jpg')">
+                    <img src="videos y fotos/eco15.jpg" alt="Foto 15">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="finalReveal()">¡LA SORPRESA!</button>
+            </div>
+        </div>
     </div>
+
+    <div class="final-reveal" id="finalReveal">
+        <div class="reveal-content">
+            <div class="final-icon">👶</div>
+            <h1 class="final-title">¡ESTAMOS ESPERANDO UN BEBÉ!</h1>
+            <p class="final-text">Una nueva vida llegará a nuestras vidas en poco tiempo</p>
+            <p class="final-text">Con todo nuestro amor ♡</p>
+            <div class="final-gallery">
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco1.jpg')">
+                    <img src="videos y fotos/eco1.jpg" alt="Galería 1">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco2.jpg')">
+                    <img src="videos y fotos/eco2.jpg" alt="Galería 2">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco3.jpg')">
+                    <img src="videos y fotos/eco3.jpg" alt="Galería 3">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco4.jpg')">
+                    <img src="videos y fotos/eco4.jpg" alt="Galería 4">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco5.jpg')">
+                    <img src="videos y fotos/eco5.jpg" alt="Galería 5">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco6.jpg')">
+                    <img src="videos y fotos/eco6.jpg" alt="Galería 6">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco7.jpg')">
+                    <img src="videos y fotos/eco7.jpg" alt="Galería 7">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco8.jpg')">
+                    <img src="videos y fotos/eco8.jpg" alt="Galería 8">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco9.jpg')">
+                    <img src="videos y fotos/eco9.jpg" alt="Galería 9">
+                </div>
+                <div class="final-gallery-item" onclick="openModal('videos%20y%20fotos/eco10.jpg')">
+                    <img src="videos y fotos/eco10.jpg" alt="Galería 10">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="imageModal">
+        <div class="modal-content" onclick="closeModal(event)">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="" alt="Modal Image">
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 4;
+
+        function goToStep(step) {
+            if (step >= 0 && step < totalSteps) {
+                currentStep = step;
+                updateUI();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateUI();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            for (let i = 0; i < totalSteps; i++) {
+                const panel = document.getElementById(`step-${i}`);
+                if (i === currentStep) {
+                    panel.classList.remove('hidden');
+                } else {
+                    panel.classList.add('hidden');
+                }
+            }
+
+            const dots = document.querySelectorAll('.step-dot');
+            const lines = document.querySelectorAll('.step-line');
+
+            dots.forEach((dot, index) => {
+                if (index <= currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            lines.forEach((line, index) => {
+                if (index < currentStep) {
+                    line.classList.add('active');
+                } else {
+                    line.classList.remove('active');
+                }
+            });
+
+            const progress = ((currentStep + 1) / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            window.scrollTo(0, 0);
+        }
+
+        function openModal(imagePath) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imagePath;
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(event) {
+            if (event && event.target.id !== 'imageModal') {
+                return;
+            }
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        function finalReveal() {
+            const finalRevealDiv = document.getElementById('finalReveal');
+            finalRevealDiv.classList.add('show');
+            document.body.classList.add('final-reveal-open');
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const confettiCount = 60;
+            const colors = ['#3498db', '#9b59b6', '#e74c3c', '#2ecc71', '#f39c12'];
+            const emojis = ['👶', '💕', '✨', '🎉', '💝'];
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                const useEmoji = Math.random() > 0.5;
+                if (useEmoji) {
+                    confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    confetti.style.fontSize = '1.2em';
+                    confetti.style.width = 'auto';
+                    confetti.style.height = 'auto';
+                } else {
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                }
+                
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = -10 + 'px';
+
+                document.body.appendChild(confetti);
+
+                const startX = parseFloat(confetti.style.left);
+                const duration = 2.5 + Math.random() * 1.5;
+                const startTime = Date.now();
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 40 + Math.random() * 80;
+
+                const animate = () => {
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const progress = elapsed / duration;
+
+                    if (progress < 1) {
+                        const x = startX + Math.cos(angle) * velocity * elapsed;
+                        const y = Math.sin(angle) * velocity * elapsed - elapsed * elapsed * 80;
+                        
+                        confetti.style.left = x + 'px';
+                        confetti.style.top = y + 'px';
+                        confetti.style.opacity = 1 - progress;
+                        confetti.style.transform = `rotate(${elapsed * 360}deg)`;
+                        requestAnimationFrame(animate);
+                    } else {
+                        confetti.remove();
+                    }
+                };
+
+                animate();
+            }
+        }
+
+        updateUI();
+    </script>
 </body>
 </html>
